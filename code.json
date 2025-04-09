@@ -1,0 +1,7 @@
+{
+  "codes": [
+    { "code": "123456789", "valid": true },
+    { "code": "987654321", "valid": true },
+    { "code": "112233445", "valid": true }
+  ]
+}
