@@ -61,7 +61,7 @@ function renderQuestions() {
     const div = document.createElement('div');
     div.className = 'question';
     div.innerHTML = `
-      <p>${index + 1}. ${q.text}</p>
+      <p>${index + 1}. ${q.text} <span class="question-points">(кол-во баллов: ${q.points})</span></p>
       <div class="answer-group">
         <input type="radio" name="q${index}" id="q${index}v" value="Верно">
         <label for="q${index}v">Верно</label>
@@ -76,6 +76,7 @@ function renderQuestions() {
     container.appendChild(div);
   });
 }
+
 
 function shuffleArray(array) {
   return [...array].sort(() => Math.random() - 0.5);
