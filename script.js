@@ -160,7 +160,7 @@ function sendToWebhook(score, total, percent, passed, examineeName, examinerName
     { name: "Баллы:", value: "`" + `${score} из ${total}` + "`" },
     { name: "Процент:", value: "`" + `${percent.toFixed(1)}%` + "`" }
   ];
-  const webhookUrl = 'https://discord.com/api/webhooks/1359542912647434391/7E_S0wfMd3d5-2CzJ-vlwGMHaCcsQ1Yxxpk06V1uw7h4rfMqkwKH-Ww_b28OSyEH7MwO';
+  const webhookUrl = 'https://discord.com/api/webhooks/1359949504689995796/1Me_7B3yai5YDC_7K6ck_YDg9aWvke9qLGEAIfAB00b_0dBX8XDcd5Qdkk55V2mGylfT';
 
   const payload = {
     username: "Секретарь адвокатуры",
