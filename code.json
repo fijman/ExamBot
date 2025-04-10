@@ -1,7 +1,7 @@
 {
   "codes": [
-    { "code": "123456789", "valid": true },
-    { "code": "987654321", "valid": true },
-    { "code": "112233445", "valid": true }
+    { "code": "123456789", "valid": true, "access": ["advocate", "senior_advocate", "zpka"] },
+    { "code": "987654321", "valid": true, "access": ["advocate", "senior_advocate"] },
+    { "code": "112233445", "valid": true, "access": ["advocate"] }
   ]
 }

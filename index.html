@@ -5,38 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Экзаменатор</title>
   <link rel="stylesheet" href="style.css">
+  
 </head>
 <body>
 
+  <!-- Экран авторизации -->
   <div id="auth-container">
     <h1>Добро пожаловать</h1>
     <input type="password" id="password" placeholder="Введите код доступа" />
     <button id="loginBtn">Войти</button>
   </div>
 
+  <!-- Экран выбора экзамена -->
   <div id="roleSelection" class="hidden">
     <h2>Выберите экзамен</h2>
-    <button onclick="startTest('advocate')">Адвокат</button>
-    <button onclick="startTest('senior_advocate')">Старший адвокат</button>
-    <button onclick="startTest('zpka')">ЗПК</button>
+    <button id="btn-advocate" onclick="startTest('advocate')">Адвокат</button>
+    <button id="btn-senior" onclick="startTest('senior_advocate')">Старший адвокат</button>
+    <button id="btn-zpka" onclick="startTest('zpka')">ЗПК</button>
   </div>
 
+  <!-- Экран экзамена -->
   <div id="examPanel" class="hidden">
     <h2>Экзамен</h2>
     <form id="examForm">
       <div id="examinerInfo">
         <label for="examineeName"></label>
-        <input type="text" id="examineeName" placeholder="Discord ID экзаминуемого" required>
+        <input type="text" id="examineeName" placeholder="Введите Discord ID экзаминуемого" required>
   
         <label for="examinerName"></label>
-        <input type="text" id="examinerName" placeholder="Discord ID экзаменатора" required>
+        <input type="text" id="examinerName" placeholder="Введите Discord ID экзаменатора" required>
       </div>
       <div id="questions"></div>
     </form>
     <button id="submitBtn">Завершить</button>
     <div id="result"></div>
   </div>
-  
 
   <footer>© 2025 Экзаменатор</footer>
   <script src="script.js"></script>

@@ -1,158 +1,187 @@
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('loginBtn').addEventListener('click', login);
-  document.getElementById('submitBtn').addEventListener('click', submitExam);
+let currentAccess = [];
+let currentTestType = '';
+let questions = [];
+
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const codeInput = document.getElementById('password').value.trim();
+
+  fetch('code.json')
+    .then(response => response.json())
+    .then(data => {
+      const entry = data.codes.find(c => c.code === codeInput && c.valid);
+      if (entry) {
+        currentAccess = entry.access;
+
+        if (!currentAccess.includes('advocate')) {
+          document.getElementById('btn-advocate').style.display = 'none';
+        }
+        if (!currentAccess.includes('senior_advocate')) {
+          document.getElementById('btn-senior').style.display = 'none';
+        }
+        if (!currentAccess.includes('zpka')) {
+          document.getElementById('btn-zpka').style.display = 'none';
+        }
+
+        document.getElementById('auth-container').classList.add('hidden');
+        document.getElementById('roleSelection').classList.remove('hidden');
+      } else {
+        alert('Неверный или недействительный код');
+      }
+    })
+    .catch(error => console.error('Ошибка загрузки кода: ', error));
 });
 
-const questionsCount = {
-  advocate: 10,
-  senior_advocate: 15,
-  zpka: 20
-};
+function startTest(type) {
+  currentTestType = type;
 
-const thresholds = {
-  advocate: 40,
-  senior_advocate: 60,
-  zpka: 75
-};
+  let file = `${type}.json`;
+  let questionCount = type === 'advocate' ? 10 : type === 'senior_advocate' ? 15 : 20;
 
-let currentQuestions = [];
-let currentRole = '';
-
-async function login() {
-  const codeInput = document.getElementById('password').value.trim();
-  const response = await fetch('code.json');
-  const data = await response.json();
-  const validCodes = data.codes.filter(c => c.valid).map(c => c.code);
-
-  if (validCodes.includes(codeInput)) {
-    document.getElementById('auth-container').classList.add('hidden');
-    document.getElementById('roleSelection').classList.remove('hidden');
-  } else {
-    alert('Неверный код');
-  }
+  fetch(file)
+    .then(response => response.json())
+    .then(data => {
+      if (data.length > 0) {
+        // Перемешиваем и выбираем нужное количество вопросов
+        questions = shuffleArray(data).slice(0, questionCount);
+        renderQuestions();
+        document.getElementById('roleSelection').classList.add('hidden');
+        document.getElementById('examPanel').classList.remove('hidden');
+      } else {
+        console.error('Нет вопросов в файле', file);
+      }
+    })
+    .catch(error => console.error('Ошибка при загрузке вопросов: ', error));
 }
 
-async function startTest(role) {
-  const count = questionsCount[role];
-  const response = await fetch(`${role}.json`);
-  const questions = await response.json();
-
-  currentQuestions = selectByPoints(shuffle(questions), count);
-  currentRole = role;
-
-  renderQuestions(currentQuestions);
-  document.getElementById('roleSelection').classList.add('hidden');
-  document.getElementById('examPanel').classList.remove('hidden');
-}
-
-function shuffle(array) {
-  return [...array].sort(() => Math.random() - 0.5);
-}
-
-function selectByPoints(pool, count) {
-  const one = Math.floor(count * 0.4);
-  const two = Math.floor(count * 0.3);
-  const three = count - one - two;
-
-  const byPoints = p => pool.filter(q => q.points === p);
-  return [
-    ...byPoints(1).slice(0, one),
-    ...byPoints(2).slice(0, two),
-    ...byPoints(3).slice(0, three)
-  ];
-}
-
-function renderQuestions(questions) {
+function renderQuestions() {
   const container = document.getElementById('questions');
   container.innerHTML = '';
 
-  questions.forEach((q, i) => {
+  questions.forEach((q, index) => {
     const div = document.createElement('div');
     div.className = 'question';
-
-    // Форматируем текст вопроса, заменяя \n на <br> для абзацев
-    const formattedQuestion = q.text.replace(/\n/g, '<br>');
-
-    // Форматируем пояснение, заменяя \n на <br> для абзацев
-    const formattedExplanation = q.explanation ? q.explanation.replace(/\n/g, '<br>') : '';
-
     div.innerHTML = `
-      <p><strong>${i + 1}. ${formattedQuestion}</strong></p>
+      <p>${index + 1}. ${q.text}</p>
       <div class="answer-group">
-        <input type="radio" id="q${i}-true" name="q${i}" value="Верно">
-        <label for="q${i}-true">Верно</label>
-        <input type="radio" id="q${i}-false" name="q${i}" value="Неверно">
-        <label for="q${i}-false">Неверно</label>
+        <input type="radio" name="q${index}" id="q${index}v" value="Верно">
+        <label for="q${index}v">Верно</label>
+
+        <input type="radio" name="q${index}" id="q${index}n" value="Неверно">
+        <label for="q${index}n">Неверно</label>
       </div>
-      <p class="explanation">${formattedExplanation}</p>
+      <div id="explanation${index}">
+        <p id="pos"><strong>Пояснение:</strong> ${q.explanation}</p>
+      </div>
     `;
     container.appendChild(div);
   });
 }
 
+function shuffleArray(array) {
+  return [...array].sort(() => Math.random() - 0.5);
+}
 
-async function submitExam() {
-  let score = 0;
-  let total = 0;
+document.getElementById('submitBtn').addEventListener('click', () => {
+  const examinee = document.getElementById('examineeName').value.trim();
+  const examiner = document.getElementById('examinerName').value.trim();
 
-  // Собираем данные о экзаменуемом и экзаменаторе
-  const examineeName = document.getElementById('examineeName').value.trim();
-  const examinerName = document.getElementById('examinerName').value.trim();
-
-  // Если одно из полей пустое, выводим предупреждение
-  if (!examineeName || !examinerName) {
-    alert('Пожалуйста, введите имя экзаменуемого и экзаменатора.');
+  if (!examinee || !examiner) {
+    alert('Пожалуйста, заполните все поля.');
     return;
   }
 
-  // Подсчитываем баллы
-  currentQuestions.forEach((q, i) => {
-    const answer = document.querySelector(`input[name="q${i}"]:checked`);
-    total += q.points;
-    if (answer && answer.value === 'Верно') {
-      score += q.points;
+  let totalScore = 0;
+  let maxScore = 0;
+
+  questions.forEach((q, index) => {
+    const selected = document.querySelector(`input[name="q${index}"]:checked`);
+    const isCorrect = selected && selected.value === 'Верно';
+    if (isCorrect) totalScore += q.points;
+    maxScore += q.points;
+
+    // Показываем пояснение
+    const explanationDiv = document.getElementById(`explanation${index}`);
+    if (explanationDiv) {
+      explanationDiv.classList.remove('hidden');
     }
   });
 
-  const percent = (score / total) * 100;
-  const passed = percent >= thresholds[currentRole];
-  document.getElementById('result').innerHTML =
-    `Набрано ${score} из ${total} баллов (${percent.toFixed(1)}%). ${passed ? 'Тест пройден ✅' : 'Тест не пройден ❌'}`;
+  const percent = Math.round((totalScore / maxScore) * 100);
 
-  // Отправляем результат на вебхук
-  sendToWebhook(score, total, percent, passed, examineeName, examinerName);
+  // Устанавливаем проходной балл в зависимости от типа теста
+  let passThreshold = 60;
+  if (currentTestType === 'advocate') passThreshold = 40;
+  else if (currentTestType === 'senior_advocate') passThreshold = 60;
+  else if (currentTestType === 'zpka') passThreshold = 75;
+  
+  const passed = percent >= passThreshold;
+  
 
+  // Сбросим старые результаты, чтобы убрать рамку (если она осталась)
+  const resultElement = document.getElementById('result');
+  resultElement.classList.remove('success', 'fail'); // Убираем классы 'success' и 'fail'
+
+  // Добавляем новый класс для результата
+  resultElement.classList.add(passed ? 'success' : 'fail');
+  resultElement.innerText = `Результат: ${percent}% (${totalScore} из ${maxScore} баллов)`;
+
+  // Отправляем данные в Discord
+  sendToWebhook(totalScore, maxScore, percent, passed, examinee, examiner);
+
+  // Вернуть к выбору
   setTimeout(() => {
+    // Скрываем панель с результатами и показываем выбор экзамена
     document.getElementById('examPanel').classList.add('hidden');
     document.getElementById('roleSelection').classList.remove('hidden');
-  }, 3000);
-}
+    
+    // Очищаем результат
+    resultElement.innerText = '';
+    
+    // Сбрасываем форму и скрываем пояснения
+    document.getElementById('examForm').reset();
+    
+    // Убираем старые результаты
+    resultElement.classList.remove('success', 'fail'); // Сброс рамки
+  }, 5000);
+});
+
+
 
 function sendToWebhook(score, total, percent, passed, examineeName, examinerName) {
-  const webhookUrl = 'https://discord.com/api/webhooks/1330638239391813825/pPLjWkUZZ-ORmNAEsuAKX3b0uvglA4uHx_og9QbKbf61Cl66Y0Uf1KOC6d71uoChuYRa';
+  const fields = [
+    { 
+      name: "Экзаменуемый:", 
+      value: `**<@${examineeName}>**` 
+    },
+    { 
+      name: "Экзаменатор:", 
+      value: `**<@${examinerName}>**` 
+    },
+    { name: "Баллы:", value: "`" + `${score} из ${total}` + "`" },
+    { name: "Процент:", value: "`" + `${percent.toFixed(1)}%` + "`" }
+  ];
+  const webhookUrl = 'https://discord.com/api/webhooks/1359542912647434391/7E_S0wfMd3d5-2CzJ-vlwGMHaCcsQ1Yxxpk06V1uw7h4rfMqkwKH-Ww_b28OSyEH7MwO';
+
   const payload = {
     username: "Секретарь адвокатуры",
-    avatar_url: "https://cdn.discordapp.com/attachments/1302639052008456258/1330636354131988501/statue-of-liberty.png",
-    content: `**<@${examineeName}>**`,
+    avatar_url: "https://images-ext-1.discordapp.net/external/_E6k2LyPCkITZ8Yw-NHt5II-3orcFJb8cGjVk_ts4Lg/https/i.imgur.com/hdNDCt0.png?format=webp&quality=lossless",
+    content: `**<@${examineeName}>**` + `${passed ? ' прошел экзамен ✅' : ' не прошел экзамен ❌'}`,
     embeds: [
       {
         title: 'Результаты экзамена',
-        description: `
-          Экзаменуемый: **<@${examineeName}>**
-          Экзаменатор: **<@${examinerName}>**
-          Баллы: **${score}** из **${total}**
-          Процент: **${percent.toFixed(1)}%**
-        `,
-        color: passed ? 65280 : 16711680,
+        fields: fields,
+        color: passed ? 3857994 : 16719659,
         footer: {
-          text: "by Walter Heisenberg"
-      },
-      thumbnail: {
-          url: "https://cdn.discordapp.com/attachments/1303450766236979252/1303454138801324134/undefined_-_Imgur_5.png"
-      },
-      image: {
-          url: "https://cdn.discordapp.com/attachments/1301258252427989133/1301266881419804762/55f758f4c4b08c0e.png"
-      }
+          text: "Частная Коллегия Адвокатов IronSide Justice.",
+          icon_url: 'https://cdn.discordapp.com/attachments/1303450766236979252/1303454138801324134/undefined_-_Imgur_5.png'
+        },
+        thumbnail: {
+          url: 'https://media.discordapp.net/attachments/1302639052008456258/1359502002899648758/249b84c349454074.png'
+        },
+        image: {
+          url: 'https://media.discordapp.net/attachments/1302639052008456258/1359517606947852390/a4ea191ad79b03f3.png'
+        },
+        timestamp: new Date().toISOString()
       }
     ]
   };
@@ -161,6 +190,15 @@ function sendToWebhook(score, total, percent, passed, examineeName, examinerName
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
+  })
+  .then(response => {
+    if (response.ok) {
+      console.log("Сообщение успешно отправлено на вебхук.");
+    } else {
+      console.error("Ошибка отправки на вебхук:", response.status, response.statusText);
+    }
+  })
+  .catch(error => {
+    console.error("Ошибка при отправке запроса:", error);
   });
 }
-
