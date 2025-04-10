@@ -1,7 +1,14 @@
 {
   "codes": [
-    { "code": "123456789", "valid": true, "access": ["advocate", "senior_advocate", "zpka"] },
-    { "code": "987654321", "valid": true, "access": ["advocate", "senior_advocate"] },
-    { "code": "112233445", "valid": true, "access": ["advocate"] }
+    { "code": "527839104", "valid": true, "access": ["advocate", "senior_advocate", "zpka"] },
+    { "code": "918204763", "valid": true, "access": ["advocate", "senior_advocate"] },
+    { "code": "340192857", "valid": true, "access": ["advocate"] },
+    { "code": "761083295", "valid": true, "access": ["advocate"] },
+    { "code": "284751903", "valid": true, "access": ["advocate"] },
+    { "code": "693817420", "valid": true, "access": ["advocate"] },
+    { "code": "158629370", "valid": true, "access": ["advocate"] },
+    { "code": "802395617", "valid": true, "access": ["advocate"] },
+    { "code": "479360218", "valid": true, "access": ["advocate"] },
+    { "code": "630982174", "valid": true, "access": ["advocate"] }
   ]
 }
