@@ -154,10 +154,7 @@ document.getElementById('submitBtn').addEventListener('click', () => {
 
 function sendToWebhook(score, total, percent, passed, examineeName, examinerName) {
   const fields = [
-    { 
-      name: "Результаты экзамена на", 
-      value: `${Rolle}`
-    },
+
     { 
       name: "Экзаменуемый:", 
       value: `**<@${examineeName}>**` 
