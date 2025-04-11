@@ -117,6 +117,10 @@ document.getElementById('submitBtn').addEventListener('click', () => {
   
   const passed = percent >= passThreshold;
   
+  let Rolle = 60;
+  if (currentTestType === 'advocate') passThreshold = 'на Адвоката';
+  else if (currentTestType === 'senior_advocate') passThreshold = 'на Старшего Адвоката';
+  else if (currentTestType === 'zpka') passThreshold = 'на Заместителя Председателя Коллегии Адвокатов';
 
   // Сбросим старые результаты, чтобы убрать рамку (если она осталась)
   const resultElement = document.getElementById('result');
@@ -150,6 +154,10 @@ document.getElementById('submitBtn').addEventListener('click', () => {
 
 function sendToWebhook(score, total, percent, passed, examineeName, examinerName) {
   const fields = [
+    { 
+      name: "Результаты экзамена на", 
+      value: `${Rolle}`
+    },
     { 
       name: "Экзаменуемый:", 
       value: `**<@${examineeName}>**` 
