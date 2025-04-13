@@ -1,7 +1,7 @@
 let currentAccess = [];
 let currentTestType = '';
 let questions = [];
-
+let Rolle = '';
 document.getElementById('loginBtn').addEventListener('click', () => {
   const codeInput = document.getElementById('password').value.trim();
 
@@ -30,18 +30,23 @@ document.getElementById('loginBtn').addEventListener('click', () => {
     })
     .catch(error => console.error('Ошибка загрузки кода: ', error));
 });
-const Rolle = 0;
+
+
 function startTest(type) {
   currentTestType = type;
 
   let file = `${type}.json`;
   let questionCount = type === 'advocate' ? 10 : type === 'senior_advocate' ? 15 : 20;
 
+  // Устанавливаем значение Rolle в зависимости от типа
+  if (type === 'advocate') Rolle = 'Экзамен на Адвоката';
+  else if (type === 'senior_advocate') Rolle = 'Экзамен на Старшего Адвоката';
+  else if (type === 'zpka') Rolle = 'Экзамен на Заместителя Председателя Коллегии Адвокатов';
+
   fetch(file)
     .then(response => response.json())
     .then(data => {
       if (data.length > 0) {
-        // Перемешиваем и выбираем нужное количество вопросов
         questions = shuffleArray(data).slice(0, questionCount);
         renderQuestions();
         document.getElementById('roleSelection').classList.add('hidden');
@@ -51,10 +56,8 @@ function startTest(type) {
       }
     })
     .catch(error => console.error('Ошибка при загрузке вопросов: ', error));
-if (currentTestType === 'advocate') Rolle = 'на Адвоката';
-else if (currentTestType === 'senior_advocate') Rolle = 'на Старшего Адвоката';
-else if (currentTestType === 'zpka') Rolle = 'на Заместителя Председателя Коллегии Адвокатов';
 }
+
 
 
 
@@ -156,10 +159,7 @@ document.getElementById('submitBtn').addEventListener('click', () => {
 
 function sendToWebhook(score, total, percent, passed, examineeName, examinerName) {
   const fields = [
-    { 
-      name: "", 
-      value: Rolle
-    },
+
     { 
       name: "Экзаменуемый:", 
       value: `**<@${examineeName}>**` 
@@ -180,6 +180,7 @@ function sendToWebhook(score, total, percent, passed, examineeName, examinerName
     embeds: [
       {
         title: 'Результаты экзамена',
+        description: Rolle,
         fields: fields,
         color: passed ? 3857994 : 16719659,
         footer: {
