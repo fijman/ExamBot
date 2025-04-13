@@ -30,7 +30,7 @@ document.getElementById('loginBtn').addEventListener('click', () => {
     })
     .catch(error => console.error('Ошибка загрузки кода: ', error));
 });
-
+const Rolle = 0;
 function startTest(type) {
   currentTestType = type;
 
@@ -51,7 +51,13 @@ function startTest(type) {
       }
     })
     .catch(error => console.error('Ошибка при загрузке вопросов: ', error));
+if (currentTestType === 'advocate') Rolle = 'на Адвоката';
+else if (currentTestType === 'senior_advocate') Rolle = 'на Старшего Адвоката';
+else if (currentTestType === 'zpka') Rolle = 'на Заместителя Председателя Коллегии Адвокатов';
 }
+
+
+
 
 function renderQuestions() {
   const container = document.getElementById('questions');
@@ -116,11 +122,7 @@ document.getElementById('submitBtn').addEventListener('click', () => {
   else if (currentTestType === 'zpka') passThreshold = 75;
   
   const passed = percent >= passThreshold;
-  
-  let Rolle = 60;
-  if (currentTestType === 'advocate') passThreshold = 'на Адвоката';
-  else if (currentTestType === 'senior_advocate') passThreshold = 'на Старшего Адвоката';
-  else if (currentTestType === 'zpka') passThreshold = 'на Заместителя Председателя Коллегии Адвокатов';
+
 
   // Сбросим старые результаты, чтобы убрать рамку (если она осталась)
   const resultElement = document.getElementById('result');
@@ -154,7 +156,10 @@ document.getElementById('submitBtn').addEventListener('click', () => {
 
 function sendToWebhook(score, total, percent, passed, examineeName, examinerName) {
   const fields = [
-
+    { 
+      name: "", 
+      value: Rolle
+    },
     { 
       name: "Экзаменуемый:", 
       value: `**<@${examineeName}>**` 
