@@ -3,7 +3,7 @@
     { "code": "527839104", "valid": true, "access": ["advocate", "senior_advocate", "zpka"] },
     { "code": "918204763", "valid": true, "access": ["advocate", "senior_advocate"] },
     { "code": "340192857", "valid": true, "access": ["advocate"], "_comment": "Kosuke V"},
-    { "code": "761083295", "valid": true, "access": ["advocate"] },
+    { "code": "761083295", "valid": true, "access": ["advocate"], "_comment": "Ст. А/О.Суд.|D.M. /A.C.| #194804" },
     { "code": "284751903", "valid": true, "access": ["advocate"] },
     { "code": "693817420", "valid": true, "access": ["advocate"] },
     { "code": "158629370", "valid": true, "access": ["advocate"] },

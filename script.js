@@ -38,7 +38,6 @@ function startTest(type) {
   let file = `${type}.json`;
   let questionCount = type === 'advocate' ? 10 : type === 'senior_advocate' ? 15 : 20;
 
-  // Устанавливаем значение Rolle в зависимости от типа
   if (type === 'advocate') Rolle = 'Экзамен на Адвоката';
   else if (type === 'senior_advocate') Rolle = 'Экзамен на Старшего Адвоката';
   else if (type === 'zpka') Rolle = 'Экзамен на Заместителя Председателя Коллегии Адвокатов';
@@ -47,7 +46,26 @@ function startTest(type) {
     .then(response => response.json())
     .then(data => {
       if (data.length > 0) {
-        questions = shuffleArray(data).slice(0, questionCount);
+        // Фильтрация по баллам
+        const ones = shuffleArray(data.filter(q => q.points === 1));
+        const twos = shuffleArray(data.filter(q => q.points === 2));
+        const threes = shuffleArray(data.filter(q => q.points === 3));
+
+        // Количество вопросов по баллам
+        const count1 = Math.round(questionCount * 0.4);
+        const count2 = Math.round(questionCount * 0.3);
+        const count3 = questionCount - count1 - count2; // остаток
+
+        // Выбираем нужное количество из каждой категории
+        const selectedQuestions = [
+          ...ones.slice(0, count1),
+          ...twos.slice(0, count2),
+          ...threes.slice(0, count3)
+        ];
+
+        // Перемешиваем финальный список
+        questions = shuffleArray(selectedQuestions);
+
         renderQuestions();
         document.getElementById('roleSelection').classList.add('hidden');
         document.getElementById('examPanel').classList.remove('hidden');
@@ -57,10 +75,6 @@ function startTest(type) {
     })
     .catch(error => console.error('Ошибка при загрузке вопросов: ', error));
 }
-
-
-
-
 
 function renderQuestions() {
   const container = document.getElementById('questions');
