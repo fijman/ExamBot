@@ -185,7 +185,7 @@ function sendToWebhook(score, total, percent, passed, examineeName, examinerName
     { name: "Баллы:", value: "`" + `${score} из ${total}` + "`" },
     { name: "Процент:", value: "`" + `${percent.toFixed(1)}%` + "`" }
   ];
-  const webhookUrl = 'https://discord.com/api/webhooks/1359949504689995796/1Me_7B3yai5YDC_7K6ck_YDg9aWvke9qLGEAIfAB00b_0dBX8XDcd5Qdkk55V2mGylfT';
+  const webhookUrl = 'https://discord.com/api/webhooks/1418641794882863295/j62wrPBd6O6RoQy9V_9Id_dh1Ehlyt8btlnuKkl2R_nPkpH-COWfbpPTprLaUXkVOHR5';
 
   const payload = {
     username: "Секретарь адвокатуры",
@@ -228,3 +228,4 @@ function sendToWebhook(score, total, percent, passed, examineeName, examinerName
     console.error("Ошибка при отправке запроса:", error);
   });
 }
+
